@@ -1,0 +1,40 @@
+body {
+  margin: 200 0 0 0;
+  background: black;
+  color: white;
+  font: 48px "Courier New";
+}
+
+.carousel {
+  text-align: center;
+}
+
+input,
+.slide,
+.controls {
+  display: none;
+}
+
+label {
+  display: inline-block;
+  margin: 5px;
+  padding: 5px 12px;
+  border: 2px solid white;
+  border-radius: 8px;
+  background-color: rgba(255,255,255,0.2);
+}
+
+#word-1:checked ~ .slide-1,
+#word-2:checked ~ .slide-2,
+#word-3:checked ~ .slide-3,
+#word-4:checked ~ .slide-4,
+#word-5:checked ~ .slide-5,
+#word-6:checked ~ .slide-6,
+#word-1:checked ~ .controls-1,
+#word-2:checked ~ .controls-2,
+#word-3:checked ~ .controls-3,
+#word-4:checked ~ .controls-4,
+#word-5:checked ~ .controls-5,
+#word-6:checked ~ .controls-6 {
+  display: block;
+}
