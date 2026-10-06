@@ -1,0 +1,7 @@
+# Prep 5: Vue
+
+Below is my screenshot of my Vue list page, with the playground linked [here](https://play.vuejs.org/#eNqVVE1v00AQ/SvLXpKowS4q4mCciIKCBEIF0YoLi5Bjj5Nt1mtrd5ymsvzfmd11nBxopd6y8/HmvTcTd/y6aaJ9Czzhqc2NbJBZwLZZCi2rpjbIOmagnLO8rpoWoWA9K01dsQk1TYQWWgEyWSwu3wud19oi0/CwUsgWrm8quOCzYwYlKhgSk2/S4mRMSYTKDqnfQjPWySIh3IuLOdNZBQkT/LM0VAkKBZ+zotYULDNloZ8/0XALBF68pONuK81TDX9Gsq3Ot5DvyIzF6Mt0OmOLJescsCEHjQ6aon2mWohKqRDMdErQvu4V/YjcgFmkQG9wK3RP+CVBo6w1y4qCAD3aOUzT2u3URyl+ZB+eQUIwP1QPiTMZLuDG9EKncVg3LZoeNKJRGQK9GEu3b5ZdN2yr79OY3j7eLK8L5w5UoDFJY3clFJaaHGD711VdgFoIHjgIzuKQX7eIJOlDrmS+ozxpE9xDrQJUGoeSYbpZ0kgTHkoScFkbanM+MDnYSujJDh6HcCQdYpA70MHHBijrF7WuD1R/IuhbnC1jE8n1QWciSfajYyWPsm/aag1mONJx+4lrO92Cc8o5ksZnbvI5R0tXU8pNdG9rTf8zvz5iRocjFZjvjVs4CSK4QIYcUqp++OpjaMZFDmr+E7+3JNDd7w8DFsyehI05zMwGaBsuvbq9gYO77WOSHGkVVT+T/Am2Vq3jGMo+trog2md1nu0X/7WQenNnVwcEbY+iHFF/d75ecPpufHpG+onuVfTW99G5kot/0f4C41DJwnfRZXTF+38aGJFA).
+
+<p align="center">
+  <img src="imgs/p5-vue.png">
+</p>
