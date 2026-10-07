@@ -95,3 +95,9 @@ I tested the lobby UI manually through `bun run dev` and navigating to the front
 I also realized I had incomplete understanding of the term `view`, where I wasn't yet defining views in my documentation/backend. I learned that the `view` could define a larger backend lookup, so I defined one for `ActiveLobby` properties which could be reused in the endpoints.
 
 With the extended view, I added new integration tests to check the lobby response after various joins/leaves. Through testing, I spotted and corrected some errors in my LLM's draft of a `Rooms.ts` endpoint (there was one missing response step), and I corrected it.
+
+<hr>
+
+**Breakpoint 7: MinesweeperPlaying implementation + error codes.** While rewriting the documentation for the `MinesweeperPlaying` concept, I realized that there could be a lot of different error cases that would be split across individual actions (ex. "MOVE_NOT_ALLOWED" within a chord move, flag move, reveal, ...), and I wanted to be able to group the error codes for a simpler design. I reviewed the sync-engine documentation and saw that error codes could be shared across actions, so I rewrote my `refuses` lines to account for this. Rather than having ~15 separate error codes, I was able to reduce to three main ones. With LLM assistance, I thoroughly tested each of these broader error cases after implementing the concept functions.
+
+I will also return to my `Sessioning` and `RoomJoining` concepts to see if I can better group error cases like this, in case it might clean up my design/implementation.
