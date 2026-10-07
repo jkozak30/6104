@@ -121,3 +121,7 @@ I will also return to my `Sessioning` and `RoomJoining` concepts to see if I can
 <hr>
 
 **Breakpoint 11: UI refactoring.** My `App.vue` code was getting a bit lengthy at this point, so I decided it would be a good idea to do a minor refactor/restyle just to get the overall visual structure I initially planned. My P1 UI sketches included a "sidebar" mainly for information, and a main panel for actions. The main components I could identify right now were the sidebar, lobby view, gameplay view, settings panel, and the game board itself, so I decided to group vue code according to this (`components/Sidebar.vue`, etc.). As I continue to build UI features, I think this will make it easier to identify the added features and reason where their rendering should belong. After this refactor, I checked for the same behavior as I tested when building my UI in the last breakpoint. 
+
+<hr>
+
+**Breakpoint 12: Integration test refactoring.** I noticed one poor design choice of my existing integration testing, which was that I called `assemble` separately within each file; this would require me to update every single instance map every time I made an addition. As a small refactor, I thought it would be better to create a separate `test-app.ts` file similar to `test-db.ts`, and this would allow me to resuse both the app assembly and api instantiation logic which would be shared across all future integration tests. After my refactor, I reran tests to make sure all were still passing.
