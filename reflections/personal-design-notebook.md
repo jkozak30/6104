@@ -87,3 +87,11 @@ At this point I had two drafted concepts, so I first chose to test the Sessionin
 **Breakpoint 5: Frontend functionality testing.** The first part of the frontend that I implemented was the `RoomJoining`/`Sessioning` UI, where I added basic controls for creating/joining/leaving rooms, along with copying the room code and displaying request errors. I also needed to adapt the tutorial's `app.ts` example into Vue, which my LLM helped me with. I also chose to skip styling, so as to focus on functionality first.
 
 I tested the lobby UI manually through `bun run dev` and navigating to the frontend URL. I tested creating/leaving lobbies (checking that reloading restored my session and the UI required me to leave before joining another lobby), and tested joining via code (specifically that you could join an existing/active lobby, not inactive ones, and not nonexisting ones). I also tested opening multiple sessions via private windows, so I could check that a user could join someone else's lobby. All my tests were successful, and gave the expected behavior.
+
+<hr>
+
+**Breakpoint 6: Extending frontend data display, polling, and views.** In my basic frontend with lobby UI functionality, there was little to no data actually displayed in the lobby, whereas my initial plan was to include a list of the joined players. I decided to implement this with a 2-second polling mechanism because I wanted updates to occur without refresh (and I could change the frequency of polling later). This polling only occurs when the user is in a lobby (polling takes place on a particular Vue component).
+
+I also realized I had incomplete understanding of the term `view`, where I wasn't yet defining views in my documentation/backend. I learned that the `view` could define a larger backend lookup, so I defined one for `ActiveLobby` properties which could be reused in the endpoints.
+
+With the extended view, I added new integration tests to check the lobby response after various joins/leaves. Through testing, I spotted and corrected some errors in my LLM's draft of a `Rooms.ts` endpoint (there was one missing response step), and I corrected it.
