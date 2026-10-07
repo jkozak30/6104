@@ -109,3 +109,11 @@ I will also return to my `Sessioning` and `RoomJoining` concepts to see if I can
 <hr>
 
 **Breakpoint 9: Integrating MinesweeperPlaying.** Integrating the new concept was a somewhat new experience as I needed to consider what features were already in place and how I would organize testing the new reactions. I decided that organizing my integration test files incrementally made sense, as I already knew that the `Rooms` integration tests were passing, so I could organize all my `Game`-related tests in a new file to check the added Game integration functions. After drafting those and getting them to pass, I was confident the backend was functioning as intended, so I could move onto implementing/manually verifying the Minesweeper UI. My tests checked host-only game creation, shared moves across different participants, rejection of unauthorized requests, and win/loss statistics.
+
+<hr>
+
+**Breakpoint 10: UI Testing.** At this point in testing the UI, I realized it would be helpful to list details on the page that I wouldn't necessarily display in the final product. While drafting the Game UI, I found it helpful to list the raw game status on the page, so I could ensure that the display made sense given the status. I tested the game by opening two sessions (one host, one additional participant) and checking that synchronized moves would register/update on both screens, and the host had additional settings/restart controls. I tested for win, loss, restart, and mid-game leave/joins, and refreshed the pages at various points to check that the lobby state was being restored/rendered. Below is a screenshot from my (unstyled) successful UI testing!
+
+<p align="center">
+  <img src="imgs/p2-minesweeperplaying.png">
+</p>
