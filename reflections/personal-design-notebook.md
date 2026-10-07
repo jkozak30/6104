@@ -125,3 +125,7 @@ I will also return to my `Sessioning` and `RoomJoining` concepts to see if I can
 <hr>
 
 **Breakpoint 12: Integration test refactoring.** I noticed one poor design choice of my existing integration testing, which was that I called `assemble` separately within each file; this would require me to update every single instance map every time I made an addition. As a small refactor, I thought it would be better to create a separate `test-app.ts` file similar to `test-db.ts`, and this would allow me to resuse both the app assembly and api instantiation logic which would be shared across all future integration tests. After my refactor, I reran tests to make sure all were still passing.
+
+<hr>
+
+**Breakpoint 13: Composite type in `Annotating`.** When writing P1, I specified that the the `Annotating` `Item` generic type would be instantiated to `(MinesweeperPlaying.Game, MinesweeperPlaying.Coordinate)`, which was sort of informal. When implementing this with sync-engine, I thought to create a concrete type `GameCell` which would aggregate this info in order to instantiate the `Annotating` concept. I first thought to encode a list/tuple as a string and pass that as the Item type, but I thought this approach wasn't very ready-for-change, so instead (after reviewing documentation with LLM help) switched to an object-like type which sync-engine would support. I slightly modified by initial concept design by adding the `GameCell` type into `types.md`, and tested this when implementing/integrated annotating.
