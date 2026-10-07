@@ -81,3 +81,9 @@ At this point I had two drafted concepts, so I first chose to test the Sessionin
 <hr>
 
 **Breakpoint 4: Frontend setup.** I followed the sync-engine tutorial for setting up the frontend, but since I want my app to use Vue, I needed to adapt the instructions to use Vue + Vite as was recommended. I created a similar `web/` subdir, and with LLM help I drafted a basic `App.vue` and `main.ts`, and I set the `PUBLIC_ORIGIN` environment variable according to my configured frontend. I had some trouble running `bun run check` with the new `web/` directory (it seemed like `tsc` wasn't recognizing the .vue and CSS imports), and I asked the LLM for help to resolve this. It explained that tsc does not understand .vue and CSS imports by default, so I added declarations in `env.d.ts` to let it recognize them. In the end, I could run the page via `bun run dev`, and I could manually verify that everything was working (page rendering + Vue interactions) by navigating to the frontend URL.
+
+<hr>
+
+**Breakpoint 5: Frontend functionality testing.** The first part of the frontend that I implemented was the `RoomJoining`/`Sessioning` UI, where I added basic controls for creating/joining/leaving rooms, along with copying the room code and displaying request errors. I also needed to adapt the tutorial's `app.ts` example into Vue, which my LLM helped me with. I also chose to skip styling, so as to focus on functionality first.
+
+I tested the lobby UI manually through `bun run dev` and navigating to the frontend URL. I tested creating/leaving lobbies (checking that reloading restored my session and the UI required me to leave before joining another lobby), and tested joining via code (specifically that you could join an existing/active lobby, not inactive ones, and not nonexisting ones). I also tested opening multiple sessions via private windows, so I could check that a user could join someone else's lobby. All my tests were successful, and gave the expected behavior.
