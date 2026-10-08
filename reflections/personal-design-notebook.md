@@ -128,7 +128,7 @@ I will also return to my `Sessioning` and `RoomJoining` concepts to see if I can
 
 <hr>
 
-**Breakpoint 13: Composite type in `Annotating`.** When writing P1, I specified that the the `Annotating` `Item` generic type would be instantiated to `(MinesweeperPlaying.Game, MinesweeperPlaying.Coordinate)`, which was sort of informal. When implementing this with sync-engine, I thought to create a concrete type `GameCell` which would aggregate this info in order to instantiate the `Annotating` concept. I first thought to encode a list/tuple as a string and pass that as the Item type, but I thought this approach wasn't very ready-for-change, so instead (after reviewing documentation with LLM help) switched to an object-like type which sync-engine would support. I slightly modified by initial concept design by adding the `GameCell` type into `types.md`, and tested this when implementing/integrated annotating.
+**Breakpoint 13: Composite type in `Annotating`.** When writing P1, I specified that the the `Annotating` `Item` generic type would be instantiated to `(MinesweeperPlaying.Game, MinesweeperPlaying.Coordinate)`, which was sort of informal. When implementing this with sync-engine, I thought to create a concrete type `GameCell` which would aggregate this info in order to instantiate the `Annotating` concept. I first thought to encode a list/tuple as a string and pass that as the Item type, but I thought this approach wasn't very ready-for-change, so instead (after reviewing documentation with LLM help) switched to an object-like type which sync-engine would support. I slightly modified by initial concept design by adding the `GameCell` type into `types.md`, and tested this when implementing/integrated annotating. Using an object also had the advantage of not requiring a specific key order of [game, row, column] which makes it more ready-for-change, so I added a regression test ensuring field reordering was supported.
 
 <hr>
 
@@ -139,3 +139,20 @@ I will also return to my `Sessioning` and `RoomJoining` concepts to see if I can
 **Breakpoint 15: Server latency.** At this point I had a working MVP, so I decided to work on a small improvement that would make the user experience a bit smoother. When implementing annotation, I added that a mouse release or click would trigger a backend action, and then you would see the updated board with highlights shortly after the request was processed. I didn't like that this left a couple ms where you would see the old board state before your highlight move, so I decided it would be ok for a user's view to temporarily diverge from the server view while their flag or highlight request was being processed. After the user's request is submitted, the frontend now stops polling until it is processed and maintains its local view, and afterwards, the UI will continue live-updating with server state.
 
 I initially drafted the new functionality in `App.vue` which was getting lengthy again, so I decided to organize this logic into `controller.ts` for readability. I tested manually by opening two sessions and making moves/highlighting, and I was happy with the smoother result.
+
+<hr>
+
+**Breakpoint 16: Revising test setup.** While finally reviewing the rubric, I realized my integration tests were a bit poorly defined as they directly inserted into MongoDB rather than establishing state through concept actions. I rewrote these with concept actions, though realized the randomness in mine placement would cause predictability issues, so with LLM help I controlled just that one mine placement function. After this refactor, my integration tests were no longer directly writing actual game or room state, and everything ran successfully.
+
+<hr>
+
+### Remaining work for P3
+
+Here is a list of my remaining tasks for P3, in order of priority:
+
+1. **Performance Ranking.** I still need to complete my last proposed concept `PerformanceRanking`, which will include a new reaction for storing the `MinesweeperPlaying` `_getResult` statistics, the functionality to store and rank them, and displaying them in the UI.
+2. **Minesweeper Board UI.** In my design plan I prioritized making a familiar Minesweeper UI which I do not yet have, so I will implement this with higher priority.
+3. **Board responsiveness.** Adding onto breakpoint 15, I am starting to think that the server delay for regular click and chord actions is also too slow for faster players, so I will extend this logic to make the remaining board actions smoother as well.
+4. **Otherwise improved UI.** Outside of the board itself, my current UI is also quite unstyled, so I will think through what details I would like to reorganize or potentially omit from what is currently shown.
+5. **Session lifecycle.** Currently I do not remove a player from a room when they close the tab, which I am reconsidering as a design decision (it is good if they accidentally close the tab, but bad if they think closing the tab should remove them). Perhaps I will alter this logic in P3.
+6. **Deployment.** I'll get into deploying the app publicly as part of P3, and I'll go through similar manual verification procedures as I followed while testing.
