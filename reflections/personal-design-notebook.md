@@ -146,13 +146,30 @@ I initially drafted the new functionality in `App.vue` which was getting lengthy
 
 <hr>
 
+**Breakpoint 17: Refactoring with board updates.** I had a frustrating late-stage realization that I never tested with extremely large boards, and I started to feel that even 30x30 boards were too slow/unresponsive to play enjoyably. My backend design was a bit flawed in that I passed the full-board snapshot on every poll result, which was too frequent + large and overwhelming the backend when the board had greater width/height.
+
+Once I realized this, I spent most of my time thinking of a minimal but clean addition to my backend markdown designs that would be able to improve upon this latency. Most of the added work was just writing new queries, endpoints for them, and integrating that into the frontend, and I reasoned that this could be done with minimal state addition. I primarily wanted to improve latency in two ways, which were (1) allowing a user to make moves without requiring a server response between every single one, and (2) only forwarding "updates" to the client which listed changed cells rather than a full board snapshot. The only state modification I made was adding `cellRevisions` to `MinesweeperPlaying`, which records the revision of each cell’s most recent visible change. This would allow the server to return only the cells updated since a client’s last received revision.
+
+One other idea I considered was sending moves for clients to reproduce locally, but clients cannot calculate reveal outcomes without knowing hidden mine positions. I kept those calculations and move validation on the server, sending changed visible values instead. 
+
+Alongside `MinesweeperPlaying` changes, I added the `_sync` query to `Annotating`, which allows the backend to only return an author's annotations when their content marker changes, also reducing message volume. The `Game.Updates` reaction combines new annotations and board changes, and the frontend can cache the board + merge in these updates when it polls for changes.
+
+Testing was very important for me here as I felt the changes were quite involved, so I added regression tests for the added components of `MinesweeperPlaying` and `Annotating`, as well as integration tests covering initial resets, repeated reads, single-cell updates, game replacement, annotation clearing, completion announcement, and conflicting writes. I was also able to verify quick updates and response when manually testing the UI.
+
+At this point all my tests were passing, and I added ~15 more as regression:
+
+<p align="center">
+  <img src="imgs/p2-tests.png">
+</p>
+
+<hr>
+
 ### Remaining work for P3
 
 Here is a list of my remaining tasks for P3, in order of priority:
 
 1. **Performance Ranking.** I still need to complete my last proposed concept `PerformanceRanking`, which will include a new reaction for storing the `MinesweeperPlaying` `_getResult` statistics, the functionality to store and rank them, and displaying them in the UI.
 2. **Minesweeper Board UI.** In my design plan I prioritized making a familiar Minesweeper UI which I do not yet have, so I will implement this with higher priority.
-3. **Board responsiveness.** Adding onto breakpoint 15, I am starting to think that the server delay for regular click and chord actions is also too slow for faster players, so I will extend this logic to make the remaining board actions smoother as well.
-4. **Otherwise improved UI.** Outside of the board itself, my current UI is also quite unstyled, so I will think through what details I would like to reorganize or potentially omit from what is currently shown.
-5. **Session lifecycle.** Currently I do not remove a player from a room when they close the tab, which I am reconsidering as a design decision (it is good if they accidentally close the tab, but bad if they think closing the tab should remove them). Perhaps I will alter this logic in P3.
-6. **Deployment.** I'll get into deploying the app publicly as part of P3, and I'll go through similar manual verification procedures as I followed while testing.
+3. **Otherwise improved UI.** Outside of the board itself, my current UI is also quite unstyled, so I will think through what details I would like to reorganize or potentially omit from what is currently shown.
+4. **Session lifecycle.** Currently I do not remove a player from a room when they close the tab, which I am reconsidering as a design decision (it is good if they accidentally close the tab, but bad if they think closing the tab should remove them). Perhaps I will alter this logic in P3.
+5. **Deployment.** I'll get into deploying the app publicly as part of P3, and I'll go through similar manual verification procedures as I followed while testing.
