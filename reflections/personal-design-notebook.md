@@ -212,7 +212,7 @@ I was able to test this feature through new backend/integration regression tests
 
 <hr>
 
-**Breakpoint 6: Host Reassignment.** I pointed out one design consideration in P1, which was that I wasn't sure if my `RoomJoining` design was the best as players may want to choose who is host rather than relying on random reassignment when the host leaves. I thought of a good solution today, which is adding self-select host reassignment. I just needed to add a reassign action to my `RoomJoining` concept, and similarly an endpoint which would allow the host to trigger reassignment.
+**Breakpoint 6: Host Reassignment.** I pointed out one design consideration in P1, which was that I wasn't sure if my `RoomJoining` design was the best as players may want to choose who is host rather than relying on automatic reassignment when the host leaves. I thought of a good solution today, which is adding self-select host reassignment. I just needed to add a reassign action to my `RoomJoining` concept, and similarly an endpoint which would allow the host to trigger reassignment.
 
 The backend change for this was pretty minimal, and I applied some of our visual design considerations when choosing how to implement this in the frontend. I added buttons next to participant names that would allow for reassignment, where the host would just see "reassign" next to their name by default (I think this is discoverable). Upon clicking, they could choose to "cancel" ("reassign" would be replaced with "cancel"), or they could choose any player in the list. I figured that it would be easy for a host to make a mistake in reassignment, so I chose to add a follow-up "confirm" button when the host chooses another player (I think this makes the design more error-tolerant). Overall, I thought this feature was quite easy to add using concept design, and I think my design for it in the UI is easy to get the hang of.
 
@@ -226,6 +226,68 @@ I also never implemented any limit on the board size, which I figured would be r
 
 **Breakpoint 8: Revising tests.** Upon reviewing my testbench, I realized there were still a couple cases in which I wasn't directly using concept actions and/or exposing an inconsistent state on test failure, so I revised this by reviewing each one of my testbenches and searching for any such cases. I also added more explicit checks of invariants and state after every test (`state-checks.ts`), which made my test cases more robust.
 
-One limitation I noticed in my testing is that while I do prevent partial state updates within my own code's potential errors, I do not necessarily prevent partial state from being stored if there is a server or DB failure. For instance, `RoomJoining.leave` on a host performs two DB updates in sequence, one for marking the host as an inactive player, and one for reassigning the host within the room; if the server fails in between those two writes, when the server comes back up we could have a room with no host. I figured that multi-document writes would be a greater challenge for enforcing atomicity, and anyways my tested domain refusals preserve state (whereas only storage faults between writes may leave partial state). At least for now, I am accepting this as a known limitation of the way I perform DB writes.
+One limitation I noticed in my testing is that while I do prevent partial state updates within my own code's potential errors, I do not necessarily prevent partial state from being stored if there is a server or DB failure. For instance, `RoomJoining.leave` on a host performs two DB updates in sequence, one for marking the host as an inactive player, and one for reassigning the host within the room; if the server fails in between those two writes, when the server comes back up we could have a room with no active host. I figured that multi-document writes would be a greater challenge for enforcing atomicity, and anyways my tested domain refusals preserve state (whereas only storage faults between writes may leave partial state). At least for now, I am accepting this as a known limitation of the way I perform DB writes.
 
 <hr>
+
+### Deployment Reflection
+
+I found the process of deployment to be very approachable, and the only things I needed to modify in my code were the ones in the section `If your frontend uses Vue`. Additionally, I needed to add a root-level `package.json` since my app was in a subdirectory `app/`, and the root-level one just forwards to the app-level `build` and `start` commands. I was able to set my `PUBLIC_ORIGIN` environment variable to be the deployed site URL, and I set the `MONGODB_URL` as the instructions specified.
+
+The overall approach felt familiar since I've needed to do something similar for internship project deployments (though usually using a `.yaml` or related specification). I was able to manually verify that the site worked after deployment; I did some minor testing first by playing one game, and I noticed that the backend response time was somewhat slower on board interactions, but it was still a good playable speed to me.
+
+<hr>
+
+### Testing the user journey + Deployed site
+
+On the deployed site, I decided to test out my new full user journey in sequence, as well as a couple other cases I felt would be important to check. I organized what I checked, expected, and saw in tables below:
+
+### User Journey Testing
+
+
+| Check | Expected behavior | Matched expectation? |
+| --- | --- | --- |
+| Alice creates a room and copies its code, Bob joins using it | When they join, both players see the same room code and participant list without refreshing. The copied code matches the displayed code. | Yes |
+| Alice selects Beginner settings and starts a game | Both players see the same new board with the selected dimensions and mine count shortly after Alice starts | Yes |
+| Both players reveal cells and place flags | Moves appear on both clients without refreshing, and revealed cells/flags agree | Yes |
+| Bob highlights an uncertain cell, Alice highlights nearby cell | Both clients display the highlights with the corresponding player colors | Yes |
+| They reveal every safe cell | Both clients show a win and matching stats, and remaining mines display as flags. The result appears in Past Results as a blue row. | Yes |
+| Alice chooses Bob as host and confirms | Choosing alone does not transfer hosting, and only after confirmation does Bob become host and receive the host controls | Yes |
+| Bob starts subsequent rounds (with the same settings) | Both clients receive each new board, and previous results remain available | Yes |
+| The players complete more games | Each completed game appears once in Past Results with the correct outcome | Yes |
+| They look at past results with matching settings and rank by time | Only matching wins appear, ordered by time in the selected direction. Each row displays its time. | Yes |
+| They switch the ranking metric to efficiency | Rows display efficiency percentages instead of time, and reorder according to efficiency. | Yes |
+| They enable losses | Matching losses appear alongside wins (wins in green, losses in red). | Yes |
+
+In addition, I tested the full lifecycle and edge cases with the following checks:
+
+### Additional Checks
+
+| Check | Expected behavior | Matched Expectation? |
+| --- | --- | --- |
+| Reload during an ongoing game | The session restores the player to the same room and current board (including highlights and flags) | Yes |
+| Reload after completing games | Past Results still contains the stored results, with working filters and ranking | Yes |
+| Bob tries to join with an invalid room code | Joining is refused with a displayed message; no membership is created | Yes |
+| Enter invalid board dimensions or mine counts, including a dimension above 100 | Invalid fields are highlighted red and submission is prevented, while the existing game is unchanged | Yes |
+| Cancel host reassignment after selecting a player | The original host remains host, and normal participant controls return | Yes |
+| Attempt to restart the game as a non-host | The backend rejects the request and room/game state remains unchanged | Yes; I tested this by opening two example sessions, and using `curl` in my terminal with the non-host player's details to the restart endpoint |
+| Attempt to read or modify another room's game as an outsider | The backend rejects access and the other room's state remains unchanged | Yes; I also tested this via `curl` and with a new session that was not part of the existing room |
+| Lose a game by revealing a mine | Both clients show a loss with matching statistics, and the loss is recorded once | Yes |
+| Use Shift+click to flag and H+click/drag to highlight. | The alternatives perform their intended actions without also revealing cells or producing unintended selections | Yes |
+| Explicitly leave from a multiplayer lobby | The leaving player returns to the entry screen, and disappears from the remaining player's participant list | Yes |
+| Close the tab for the host while another participant keeps playing. | After ~10 seconds without host presence, another participant is reassigned host | Yes |
+| Keep a room open and polling for longer than 10 minutes | Session renewal keeps the player connected | Yes |
+| Stop requests from a non-host for longer than 10 minutes | The session expires, and the player is removed from the lobby | Yes |
+| Leave as the last participant | The room closes, and its old code cannot be used to join it | Yes |
+
+<hr>
+
+### Known Limitations
+
+The main limitation I noticed while testing was that I haven't ensured multi-document writes are atomic, as I mentioned in my breakpoint 8. I think multi-write operations like this are typically implemented as transactions so they have a single commit point, though I haven't looked into the conventions for this in MongoDB, so perhaps it is something I will revisit in my final revision.
+
+I also hit some tradeoffs when redesigning sessioning, namely that someone quickly switching off the tab or temporarily losing network connection may not want to be disconnected so immediately from the site; since "presence" is detected via polling, there's a chance that a small (~15s) connectivity failure can disconnect the host and require them to start a new session. I reasoned this would be just for the host as their constant presence is most important in the game, but perhaps I will re-think what the best approach for detecting inactivity/exit is.
+
+Additionally, I took a bit of an issue with the "polling" approach because it creates a very high/frequent volume of database queries that would probably be expensive to maintain in a large deployment with a lot of active users. An alternative architecture (one I likely won't get to implemement in the remaining time) could use websockets, where rather than polling for updates on the given board, players can directly message-pass what moves they made, and then the server can push updates every so often. This would probably be a more scalable/cost-effective solution, though I think my solution is sufficient for small-scale community usage.
+
+Finally, one detail I noticed after deployment was that the latency between board moves was higher as compared to my local runs; this makes sense since running the backend locally makes the round-trip time about as fast as it can be. I think this could be improved via some sort of more complex deployment (potentially regional servers for faster response time, like a lot of games have), as I think it's unavoidable that the user will need to interface with a server between every reveal (we don't want the client storing the whole solution in advance).
