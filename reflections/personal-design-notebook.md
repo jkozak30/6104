@@ -308,3 +308,13 @@ Finally, one detail I noticed after deployment was that the latency between boar
 **Breakpoint 2: Dead code removal/one more improvement.** Since I didn't spend too much time documenting or cleaning up the frontend, I did a pass of checking for unused functions/variables, as well a scripts like my old `try-api.ts`. I found that this was mostly necessary for the frontend, since I already kept the backend well organized with the concise documentation provided to sync-engine. 
 
 While cleaning up the frontend, I also spotted a problematic interaction that I noticed at some point during P3 but forgot to write down: the last-clicked cell highlights on shift when you are playing with shift-click, which is somewhat messy. I decided to disable this interaction on board cells (one-line Vue change).
+
+<hr>
+
+**Breakpoint 3: Final deployment.** After deploying with my P4 fixes, I was happy to notice that the response time for each move was much faster (thanks to combining move/annotation clear requests). I also realized that it was sort of hard to test this improved response time locally, since the RTT was essentially instantaneous in my dev environment. In the future, I could consider configuring a testbench or dev environment that simulates slower network conditions, which would help to catch unnecessary requests early and better understand how the app would feel for remote users (the DevTools Network tab enables throttling, which could give me some idea).
+
+<hr>
+
+**Breakpoint 4: Prep for user testing.** After expanding the instructions a bit during this iteration, I think my app is ready for user testing, though I also don't fully trust my judgement as I am already familiar with the controls and can't completely assess how discoverable they are. At minimum I believe it is clear what the effects of user interactions actions are within the UI, and that multi-step updates are smoothly rendered. I was also able to test the page on multiple desktop devices, and it worked as expected.
+
+During user testing, I want to focus on (1) discoverability of features for new players, (2) responsiveness when multiple players are actually making moves concurrently (and potentially under variable network conditions), and (3) perhaps accommodating other forms of user controls (ex. mobile devices, where interacting with the board and flagging/highlighting probably won't work as intended).
